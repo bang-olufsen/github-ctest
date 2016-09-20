@@ -21,7 +21,7 @@ status () {
         BADGE_COLOR=brightgreen
       fi
 
-      BADGE_TEXT=$PASSED"_/_"$TESTS
+      BADGE_TEXT=$PASSED%20%2F%20$TESTS
       wget -O /tmp/ctest_${REPO_NAME}_${BRANCH}.svg https://img.shields.io/badge/ctest-$BADGE_TEXT-$BADGE_COLOR.svg 1>/dev/null 2>&1
       curl -H "Authorization: Bearer $DROPBOX_TOKEN" https://api-content.dropbox.com/1/files_put/auto/ -T /tmp/ctest_${REPO_NAME}_${BRANCH}.svg 1>/dev/null 2>&1
     fi
