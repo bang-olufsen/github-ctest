@@ -14,7 +14,7 @@ status () {
       curl -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: bangolufsen/ctest" -X POST -d "$DATA" $GITHUB_API 1>/dev/null 2>&1
     fi
 
-    if [ "$IS_PULL_REQUEST" != "true" -a "$1" != "pending" -a "$SKIP_BADGE_UPLOAD" != "true" ]; then
+    if [ "$IS_PULL_REQUEST" != "true" -a "$1" != "pending" -a "$CTEST_SKIP_BADGE_UPLOAD" != "true" ]; then
       BADGE_COLOR=red
       if [ $FAILED -eq 0 ]; then
         BADGE_COLOR=brightgreen
