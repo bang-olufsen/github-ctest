@@ -14,8 +14,7 @@ status () {
       curl -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: bangolufsen/ctest" -X POST -d "$DATA" $GITHUB_API 1>/dev/null 2>&1
     fi
 
-    # Only update test badge if it is not a pull request
-    if [ "$IS_PULL_REQUEST" != "true" ] && [ "$1" != "pending" ]; then
+    if [ "$IS_PULL_REQUEST" != "true" -a "$1" != "pending" -a "$SKIP_BADGE_UPLOAD" != "true" ]; then
       BADGE_COLOR=red
       if [ $FAILED -eq 0 ]; then
         BADGE_COLOR=brightgreen
@@ -29,11 +28,9 @@ status () {
 }
 
 status "pending" "Running ctest with args $*"
+ctest $* 2>&1 | tee /tmp/ctest.log
 
-LOG=/tmp/ctest.log
-ctest $* 2>&1 | tee $LOG
-
-DESCRIPTION=`cat $LOG | grep "tests passed"`
+DESCRIPTION=`cat /tmp/ctest.log | grep "tests passed"`
 TESTS=`echo $DESCRIPTION | awk '{ print $NF }'`
 FAILED=`echo $DESCRIPTION | awk '{ print $4 }'`
 PASSED=`expr $TESTS - $FAILED`
