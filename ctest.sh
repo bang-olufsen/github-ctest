@@ -36,9 +36,15 @@ DESCRIPTION=`cat $LOG | grep "tests passed"`
 
 # With the ctest --verbose option we can count all the test cases 
 if [ `cat $LOG | grep ": Running" | wc -l` -gt 0 ]; then
+  # Boost unit tests parsing
   TESTS=`cat $LOG | grep ": Running" | awk '{ print $3 }' | gawk 'BEGIN { sum = 0 } // { sum = sum + $0 } END { print sum }'`
   FAILED=`cat $LOG | grep ": \*" | awk '{ print $3 }' | gawk 'BEGIN { sum = 0 } // { sum = sum + $0 } END { print sum }'`
+elif [ `cat $LOG | grep " Failures " | grep " Ignored" | wc -l` -gt 0 ]; then
+  # Unity unit test parsing
+  TESTS=`cat $LOG | grep " Ignored" | awk '{ print $2 }' | gawk 'BEGIN { sum = 0 } // { sum = sum + $0 } END { print sum }'`
+  FAILED=`cat $LOG | grep " Ignored" | awk '{ print $4 }' | gawk 'BEGIN { sum = 0 } // { sum = sum + $0 } END { print sum }'`
 else
+  # CTest parsing
   TESTS=`echo $DESCRIPTION | awk '{ print $NF }'`
   FAILED=`echo $DESCRIPTION | awk '{ print $4 }'`
 fi
