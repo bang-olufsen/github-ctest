@@ -28,11 +28,21 @@ status () {
 }
 
 status "pending" "Running ctest with args $*"
-ctest $* 2>&1 | tee /tmp/ctest.log
 
-DESCRIPTION=`cat /tmp/ctest.log | grep "tests passed"`
-TESTS=`echo $DESCRIPTION | awk '{ print $NF }'`
-FAILED=`echo $DESCRIPTION | awk '{ print $4 }'`
+LOG=/tmp/ctest.log
+ctest $* 2>&1 | tee $LOG
+
+DESCRIPTION=`cat $LOG | grep "tests passed"`
+
+# With the ctest --verbose option we can count all the test cases 
+if [ `cat $LOG | grep ": Running" | wc -l` -gt 0 ]; then
+  TESTS=`cat $LOG | grep ": Running" | awk '{ print $3 }' | gawk 'BEGIN { sum = 0 } // { sum = sum + $0 } END { print sum }'`
+  FAILED=`cat $LOG | grep ": \*" | awk '{ print $3 }' | gawk 'BEGIN { sum = 0 } // { sum = sum + $0 } END { print sum }'`
+else
+  TESTS=`echo $DESCRIPTION | awk '{ print $NF }'`
+  FAILED=`echo $DESCRIPTION | awk '{ print $4 }'`
+fi
+
 PASSED=`expr $TESTS - $FAILED`
 
 if [ $FAILED -eq 0 ]; then
