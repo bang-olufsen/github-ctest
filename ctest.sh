@@ -3,6 +3,8 @@ set -e
 
 # GITHUB_TOKEN is a GitHub private access token configured for repo:status scope
 # DROPBOX_TOKEN is an access token for the Dropbox API
+CTEST_SKIP_RUN=${CTEST_SKIP_RUN:=false}
+CTEST_SKIP_UPLOAD=${CTEST_SKIP_UPLOAD:=false}
 
 status () {
   if [ "$SHIPPABLE" = "true" ]; then
@@ -14,7 +16,7 @@ status () {
       curl -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: bangolufsen/ctest" -X POST -d "$DATA" $GITHUB_API 1>/dev/null 2>&1
     fi
 
-    if [ "$IS_PULL_REQUEST" != "true" -a "$1" != "pending" -a "$CTEST_SKIP_BADGE_UPLOAD" != "true" ]; then
+    if [ "$IS_PULL_REQUEST" != "true" -a "$1" != "pending" -a "$CTEST_SKIP_UPLOAD" != "true" ]; then
       BADGE_COLOR=red
       if [ $FAILED -eq 0 ]; then
         BADGE_COLOR=brightgreen
@@ -27,14 +29,18 @@ status () {
   fi
 }
 
+if [ "$CTEST_SKIP_RUN" = "true" ]; then
+  status "success" "Skipped ctest"
+  exit 0
+fi
+
 status "pending" "Running ctest with args $*"
 
 LOG=/tmp/ctest.log
 ctest $* 2>&1 | tee $LOG
-
 DESCRIPTION=`cat $LOG | grep "tests passed"`
 
-# With the ctest --verbose option we can count all the test cases 
+# With the ctest --verbose option we can count all the test cases
 if [ `cat $LOG | grep ": Running" | wc -l` -gt 0 ]; then
   # Boost unit tests parsing
   TESTS=`cat $LOG | grep ": Running" | awk '{ print $3 }' | gawk 'BEGIN { sum = 0 } // { sum = sum + $0 } END { print sum }'`
