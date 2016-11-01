@@ -30,7 +30,7 @@ status () {
 }
 
 if [ "$CTEST_SKIP_RUN" = "true" ]; then
-  status "success" "Skipped ctest"
+  status "success" "Skipped"
   exit 0
 fi
 
