@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 # GITHUB_TOKEN is a GitHub private access token configured for repo:status scope
 # DROPBOX_TOKEN is an access token for the Dropbox API
