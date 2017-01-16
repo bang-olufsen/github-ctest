@@ -40,7 +40,11 @@ ctest $* 2>&1 | tee $LOG
 DESCRIPTION=`cat $LOG | grep "tests passed"`
 
 # With the ctest --verbose option we can count all the test cases
-if [ `cat $LOG | grep " Failures " | grep " Ignored" | wc -l` -gt 0 ]; then
+if [ `cat $LOG | grep "No tests were found" | wc -l` -gt 0 ]; then
+  TESTS=0
+  FAILED=0
+  DESCRIPTION="No tests to be executed"
+elif [ `cat $LOG | grep " Failures " | grep " Ignored" | wc -l` -gt 0 ]; then
   # Unity unit test parsing
   TESTS=`cat $LOG | grep " Ignored" | awk '{ print $2 }' | gawk 'BEGIN { sum = 0 } // { sum = sum + $0 } END { print sum }'`
   FAILED=`cat $LOG | grep " Ignored" | awk '{ print $4 }' | gawk 'BEGIN { sum = 0 } // { sum = sum + $0 } END { print sum }'`
