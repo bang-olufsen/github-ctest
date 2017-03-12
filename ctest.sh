@@ -23,7 +23,11 @@ status () {
 
       BADGE_TEXT=$PASSED%20%2F%20$TESTS
       wget -O /tmp/ctest_${REPO_NAME}_${BRANCH}.svg https://img.shields.io/badge/ctest-$BADGE_TEXT-$BADGE_COLOR.svg 1>/dev/null 2>&1
-      curl -H "Authorization: Bearer $DROPBOX_TOKEN" https://api-content.dropbox.com/1/files_put/auto/ -T /tmp/ctest_${REPO_NAME}_${BRANCH}.svg 1>/dev/null 2>&1
+      curl -X POST "https://api-content.dropbox.com/2/files/upload" \
+        -H "Authorization: Bearer $DROPBOX_TOKEN" \
+        -H "Content-Type: application/octet-stream" \
+        -H "Dropbox-API-Arg: {\"path\": \"/ctest_${REPO_NAME}_${BRANCH}.svg\", \"mode\": \"overwrite\"}" \
+        --data-binary @/tmp/ctest_${REPO_NAME}_${BRANCH}.svg 1>/dev/null 2>&1
     fi
   fi
 }
