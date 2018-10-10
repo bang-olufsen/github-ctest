@@ -13,14 +13,14 @@ status() {
       DESCRIPTION=$(echo "$2" | cut -b -100)
       DATA="{\"state\": \"$1\", \"target_url\": \"$BUILD_URL\", \"description\": \"$DESCRIPTION\", \"context\": \"ctest\"}"
       GITHUB_API="https://api.github.com/repos/$REPO_FULL_NAME/statuses/$COMMIT"
-      curl -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: bangolufsen/ctest" -X POST -d "$DATA" "$GITHUB_API"
+      curl -s -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: bangolufsen/ctest" -X POST -d "$DATA" "$GITHUB_API" 1>/dev/null
 
       if [ "$1" = "failure" ]; then
         # GitHub does not allow tabs and regular line feeds for comments so use HTML instead
         FAILED_TESTS=$(grep "(Failed)" $CTEST_LOG | sed 's:\t  :<li>:g' | sed 's:(Failed):(Failed)</li>:g' | awk 1 ORS="<br>")
         DATA="{\"body\": \"The following tests FAILED:<br>$FAILED_TESTS\"}"
         GITHUB_API="https://api.github.com/repos/$REPO_FULL_NAME/issues/$PULL_REQUEST/comments"
-        curl -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: bangolufsen/ctest" -X POST -d "$DATA" "$GITHUB_API"
+        curl -s -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: bangolufsen/ctest" -X POST -d "$DATA" "$GITHUB_API" 1>/dev/null
       fi
     fi
 
@@ -31,12 +31,12 @@ status() {
       fi
 
       BADGE_TEXT=$PASSED%20%2F%20$TESTS
-      wget -O /tmp/ctest_"${REPO_NAME}"_"${BRANCH}".svg https://img.shields.io/badge/ctest-"$BADGE_TEXT"-"$BADGE_COLOR".svg
-      curl -X POST "https://api-content.dropbox.com/2/files/upload" \
+      wget -O /tmp/ctest_"${REPO_NAME}"_"${BRANCH}".svg https://img.shields.io/badge/ctest-"$BADGE_TEXT"-"$BADGE_COLOR".svg 1>/dev/null
+      curl -s -X POST "https://api-content.dropbox.com/2/files/upload" \
         -H "Authorization: Bearer $DROPBOX_TOKEN" \
         -H "Content-Type: application/octet-stream" \
         -H "Dropbox-API-Arg: {\"path\": \"/ctest_${REPO_NAME}_${BRANCH}.svg\", \"mode\": \"overwrite\"}" \
-        --data-binary @/tmp/ctest_"${REPO_NAME}"_"${BRANCH}".svg
+        --data-binary @/tmp/ctest_"${REPO_NAME}"_"${BRANCH}".svg 1>/dev/null
     fi
   fi
 }
