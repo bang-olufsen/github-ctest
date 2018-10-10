@@ -17,8 +17,8 @@ status() {
 
       if [ "$1" = "failure" ]; then
         # GitHub does not allow tabs and regular line feeds for comments so use HTML instead
-        FAILED_TESTS=$(grep "(Failed)" $CTEST_LOG | sed 's:\t  :<li>:g' | sed 's:(Failed):(Failed)</li>:g')
-        DATA="{\"body\": \"The following tests FAILED:<br>$FAILED_TESTS\"}"
+        FAILED_TESTS=$(grep "(Failed)" $CTEST_LOG | sed 's:\t  :<li>:g' | sed 's:(Failed):(Failed)</li>:g' | awk 1 ORS='')
+        DATA="{\"body\": \"The following tests FAILED:<br><ul>$FAILED_TESTS</ul>\"}"
         GITHUB_API="https://api.github.com/repos/$REPO_FULL_NAME/issues/$PULL_REQUEST/comments"
         curl -s -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: bangolufsen/ctest" -X POST -d "$DATA" "$GITHUB_API" 1>/dev/null
       fi
