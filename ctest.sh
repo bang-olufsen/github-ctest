@@ -93,7 +93,7 @@ elif [ "$CTEST_CONTEXT_NAME" = "asan" ]; then
 fi
 
 # If we haven't anything else to report, report any failing tests
-if [ "x$DESCRIPTION" = "x" ]; then
+if [ "x$FAILED" = "x" ]; then
   DESCRIPTION=$(grep "tests passed" $CTEST_LOG | tail -n 1)
   TESTS=$(echo "$DESCRIPTION" | awk '{ print $NF }')
   FAILED=$(echo "$DESCRIPTION" | awk '{ print $4 }')
