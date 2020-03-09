@@ -32,7 +32,7 @@ status() {
       fi
     fi
 
-    if [ "$PULL_REQUEST" != "" -a "$1" != "pending" -a "$CTEST_SKIP_UPLOAD" != "true" ]; then
+    if [ "$PULL_REQUEST" = "" -a "$1" != "pending" -a "$CTEST_SKIP_UPLOAD" != "true" ]; then
       BADGE_COLOR=red
       if [ "$FAILED" -eq 0 ]; then
         BADGE_COLOR=brightgreen
