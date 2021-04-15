@@ -24,12 +24,6 @@ status() {
       PULL_REQUEST_STATUS=$(curl -s -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: $REPO_FULL_NAME" -X GET "https://api.github.com/repos/$REPO_FULL_NAME/pulls/$PULL_REQUEST")
       STATUSES_URL=$(echo "$PULL_REQUEST_STATUS" | jq -r '.statuses_url')
       curl -s -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: $REPO_FULL_NAME" -X POST -d "$DATA" "$STATUSES_URL" 1>/dev/null
-
-      if [ "$1" = "failure" ]; then
-        FAILED_TESTS=$(grep "[0-9] - " $CTEST_LOG | sed 's:\t  :<li>:g' | sed 's:(Failed):(Failed)</li>:g' | awk 1 ORS='')
-        DATA="{\"body\": \"The following tests FAILED:<br><ul>$FAILED_TESTS</ul>\"}"
-        curl -s -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -H "User-Agent: $REPO_FULL_NAME" -X POST -d "$DATA" "https://api.github.com/repos/$REPO_FULL_NAME/issues/$PULL_REQUEST/comments" 1>/dev/null
-      fi
     fi
 
     if [ "$PULL_REQUEST" = "" -a "$1" != "pending" -a "$CTEST_SKIP_UPLOAD" != "true" ]; then
